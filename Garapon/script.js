@@ -21,7 +21,7 @@ window.onload = () => {
         function loadSettings() {
             const saved = localStorage.getItem('garagara_v2_settings');
             const data = saved ? JSON.parse(saved) : [
-                { color: '#ffd700', name: '金賞', init: '1', stock: '1' },
+                { color: '#ffd700', name: '1等', init: '1', stock: '1' },
                 { color: '#ffffff', name: 'ハズレ', init: '10', stock: '10' }
             ];
             const tbody = document.getElementById('settings-body');
@@ -29,16 +29,21 @@ window.onload = () => {
             data.forEach(item => addRow(item.color, item.name, item.init, item.stock));
         }
 
-        function addRow(color="#3498db", name="新賞品", init="5", stock="5") {
+        function addRow(color="#3498db", name=null, init="1", stock=null) {
             const tbody = document.getElementById('settings-body');
+            if (!name) {
+                const nextNum = tbody.querySelectorAll('tr').length + 1;
+                name = `${nextNum}等`;
+            }
+            const finalStock = (stock === null) ? init : stock;
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><input type="color" value="${color}" onchange="saveSettings()"></td>
-                <td><input type="text" value="${name}" onchange="saveSettings()"></td>
-                <td><input type="number" value="${init}" min="0" onchange="saveSettings()"></td>
-                <td style="font-weight:bold;"><input type="number" value="${stock}" min="0" onchange="saveSettings()"></td>
-                <td><button class="btn btn-delete" onclick="this.closest('tr').remove(); saveSettings();">消す</button></td>
-            `;
+            <td><input type="color" value="${color}" onchange="saveSettings()"></td>
+            <td><input type="text" value="${name}" onchange="saveSettings()"></td>
+            <td><input type="number" value="${init}" min="0" onchange="saveSettings()"></td>
+            <td><input type="number" value="${finalStock}" min="0" onchange="saveSettings()"></td>
+            <td><button class="btn btn-delete" onclick="this.closest('tr').remove(); saveSettings();">消す</button></td>
+            `;  
             tbody.appendChild(row);
             saveSettings();
         }
@@ -49,8 +54,7 @@ window.onload = () => {
             const rows = document.querySelectorAll('#settings-table tbody tr');
             rows.forEach(row => {
                 const inputs = row.querySelectorAll('input');
-                const initValue = inputs[2].value; // 初期数
-                inputs[3].value = initValue;      // 現在の在庫に反映
+                inputs[3].value = inputs[2].value;
             });
             saveSettings();
             document.getElementById('result-text').innerText = "玉を補充しました！";
